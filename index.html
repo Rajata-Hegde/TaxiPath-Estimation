@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Taxi Time Predictor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1d2671, #c33764);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 480px;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 { text-align: center; }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        input {
+            border: 1px solid #ccc;
+        }
+
+        .hint {
+            font-size: 13px;
+            color: #555;
+            margin-top: 6px;
+        }
+
+        .examples {
+            font-size: 12px;
+            color: #777;
+            margin-top: 4px;
+        }
+
+        button {
+            border: none;
+            background: linear-gradient(135deg, #6c63ff, #4b44d6);
+            color: white;
+            cursor: pointer;
+        }
+
+        .result {
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            text-align: center;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .error {
+            background: #fdecea;
+            color: #c62828;
+        }
+
+        .logs {
+            margin-top: 25px;
+        }
+
+        .log-box {
+            background: #f7f7f7;
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 160px;
+            overflow-y: auto;
+            font-size: 13px;
+        }
+
+        .log-item {
+            margin-bottom: 6px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 4px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>✈️ Taxi Time Predictor</h1>
+    <p class="subtitle">Estimate aircraft taxi time using ML</p>
+
+    <input id="path" placeholder="Enter taxi path (e.g. L-G-Q)">
+
+    <div class="hint">
+        ✔ Accepted format: <b>TAXIWAY-TAXIWAY</b>
+    </div>
+    <div class="examples">
+        Examples: <code>L</code>, <code>L-G</code>, <code>Q-G-L</code>
+    </div>
+
+    <button onclick="predict()">Predict Taxi Time</button>
+
+    <div class="result" id="result"></div>
+
+    <div class="logs">
+        <h3>📜 Prediction Logs</h3>
+        <div class="log-box" id="logBox">
+            <div style="color:#777;">No predictions yet</div>
+        </div>
+    </div>
+
+    <footer>
+        Powered by XGBoost • Aviation ML
+    </footer>
+</div>
+
+<script>
+// ================= ALLOWED TAXIWAYS (GRAPH NODES) =================
+const ALLOWED_TAXIWAYS = new Set([
+    "L", "K", "P", "G", "$UNK", "C", "D", "F",
+    "Q", "H", "R", "E", "A", "J", "B"
+]);
+
+function addLog(msg) {
+    const logBox = document.getElementById("logBox");
+    const time = new Date().toLocaleTimeString();
+
+    if (logBox.innerText.includes("No predictions")) {
+        logBox.innerHTML = "";
+    }
+
+    const div = document.createElement("div");
+    div.className = "log-item";
+    div.innerText = `[${time}] ${msg}`;
+    logBox.prepend(div);
+}
+
+// ================= FORMAT VALIDATION =================
+function isValidFormat(path) {
+    // Only letters, $, and hyphens
+    return /^[A-Z$]+(-[A-Z$]+)*$/.test(path);
+}
+
+// ================= GRAPH VALIDATION =================
+function isValidTaxiwayPath(path) {
+    const parts = path.split("-");
+    for (const p of parts) {
+        if (!ALLOWED_TAXIWAYS.has(p)) {
+            return p; // return invalid taxiway
+        }
+    }
+    return null; // all valid
+}
+
+// ================= MAIN PREDICT =================
+function predict() {
+    const pathInput = document.getElementById("path").value.trim().toUpperCase();
+    const resultBox = document.getElementById("result");
+
+    if (!pathInput) {
+        resultBox.className = "result error";
+        resultBox.style.display = "block";
+        resultBox.innerText = "❌ Please enter a taxi path";
+        addLog("❌ Empty input");
+        return;
+    }
+
+    if (!isValidFormat(pathInput)) {
+        resultBox.className = "result error";
+        resultBox.style.display = "block";
+        resultBox.innerText =
+            "❌ Invalid format. Use TAXIWAY-TAXIWAY (e.g. L-G-Q)";
+        addLog(`❌ Invalid format: ${pathInput}`);
+        return;
+    }
+
+    const invalidTaxiway = isValidTaxiwayPath(pathInput);
+    if (invalidTaxiway) {
+        resultBox.className = "result error";
+        resultBox.style.display = "block";
+        resultBox.innerText =
+            `❌ Taxiway '${invalidTaxiway}' does not exist in airport graph`;
+        addLog(`❌ Invalid taxiway: ${invalidTaxiway}`);
+        return;
+    }
+
+    resultBox.className = "result";
+    resultBox.style.display = "block";
+    resultBox.innerText = "⏳ Predicting taxi time...";
+
+    fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path: pathInput })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) {
+            resultBox.className = "result error";
+            resultBox.innerText = "❌ " + data.error;
+            addLog(`Path: ${pathInput} → ❌ ${data.error}`);
+        } else {
+            const sec = Math.round(data.predicted_time);
+            const min = Math.floor(sec / 60);
+            const rem = sec % 60;
+
+            resultBox.className = "result success";
+            resultBox.innerText =
+                `⏱ ${sec} seconds (${min} min ${rem} sec)`;
+
+            addLog(`Path: ${pathInput} → ${sec}s (${min}m ${rem}s)`);
+        }
+    })
+    .catch(() => {
+        resultBox.className = "result error";
+        resultBox.innerText = "❌ Unable to reach server";
+        addLog(`Path: ${pathInput} → ❌ Server not reachable`);
+    });
+}
+</script>
+
+
+</body>
+</html>

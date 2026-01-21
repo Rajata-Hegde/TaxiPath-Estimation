@@ -1,0 +1,38 @@
+source_file,operation_type,status,taxi_path,taxi_time,reason
+SGX999_3a9a82fb.csv,Landing,USED,L-G,216.0,
+SGX999_3b1e7853.csv,,SKIPPED,,,Unrealistic taxi_time=13142.0
+SGX999_3b684727.csv,,SKIPPED,,,Unrealistic taxi_time=4688.0
+SIS49_399ecf83.csv,,SKIPPED,,,Unrealistic taxi_time=17592.0
+SIS49_3aaf539f.csv,,SKIPPED,,,Unrealistic taxi_time=6659.0
+SIS49_3b9b25dc.csv,,SKIPPED,,,Taxi path extraction failed
+TCN946_3b3f9c62.csv,,SKIPPED,,,Taxi path extraction failed
+TCN946_3b5eb38d.csv,,SKIPPED,,,Unrealistic taxi_time=3635.0
+TCN946_3b9c5d6a.csv,,SKIPPED,,,Unrealistic taxi_time=4119.0
+TJ849_3b82f7ac.csv,,SKIPPED,,,Unrealistic taxi_time=1971.0
+TJ849_3b88eb23.csv,,SKIPPED,,,Unrealistic taxi_time=3339.0
+TJ849_3b8f088a.csv,Landing,USED,Q,9.0,
+TJ849_3b91bba3.csv,,SKIPPED,,,Unrealistic taxi_time=3594.0
+VJA534_3ae5fe9e.csv,,SKIPPED,,,Taxi path extraction failed
+VJA534_3b22a863.csv,,SKIPPED,,,Unrealistic taxi_time=13741.0
+VJA534_3b930e4f.csv,,SKIPPED,,,Taxi path extraction failed
+VJA534_3b9b3f7d.csv,,SKIPPED,,,Not enough taxi points
+EJA483_3b7284b5.csv,Takeoff,USED,$UNK-Q,258.0,
+EJA483_3b77bc02.csv,,SKIPPED,,,Taxi path extraction failed
+EJA483_3b7feea9.csv,,SKIPPED,,,Unrealistic taxi_time=4630.0
+EJA914_3b13f003.csv,,SKIPPED,,,Unrealistic taxi_time=3837.0
+EJA914_3b5e8d2f.csv,Takeoff,USED,Q-G-L,251.0,
+KOW106_3b5f8d93.csv,,SKIPPED,,,Unrealistic taxi_time=18304.0
+KOW106_3b6f8533.csv,,SKIPPED,,,Unrealistic taxi_time=8826.0
+KOW106_3b878895.csv,,SKIPPED,,,Unrealistic taxi_time=19521.0
+KPO129_3b206448.csv,Takeoff,USED,L,173.0,
+KPO129_3b6c37dd.csv,Takeoff,USED,L,32.0,
+KPO129_3b7052e0.csv,Takeoff,USED,L,35.0,
+KPO129_3b9700a0.csv,,SKIPPED,,,Unrealistic taxi_time=8521.0
+SGX999_3a9dffce.csv,Takeoff,USED,P,23.0,
+SGX999_3b225b66.csv,,SKIPPED,,,Unrealistic taxi_time=10213.0
+SGX999_3b68ca9f.csv,Takeoff,USED,L-Q,151.0,
+WWI72_3b3f2fbc.csv,,SKIPPED,,,Taxi path extraction failed
+WWI72_3b626b11.csv,,SKIPPED,,,Unrealistic taxi_time=11516.0
+WWI72_3b6f4fe9.csv,Takeoff,USED,Q,147.0,
+WWI72_3b7e7940.csv,,SKIPPED,,,Taxi path extraction failed
+WWI72_3b9a272c.csv,Takeoff,USED,L,377.0,
